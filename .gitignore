@@ -1,0 +1,34 @@
+# Binaries
+k6
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output
+*.out
+
+# Screenshots
+screenshots/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Go
+vendor/
+go.work
+go.work.sum
+
+# k6
+k6-*
+
+# Docker
+docker-compose.override.yml

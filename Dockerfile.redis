@@ -1,0 +1,9 @@
+# Simple Redis Dockerfile for k6 testing
+FROM redis:7-alpine
+
+# Expose Redis port
+EXPOSE 6379
+
+# Run Redis without authentication
+CMD ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+
