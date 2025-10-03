@@ -688,18 +688,9 @@ func (c *WebDriverClient) ClickElement(ctx context.Context, elementID string) er
 				errorMsg = errStr
 			}
 
-			// Log element info if available
-			if info, ok := resultMap["info"].(map[string]interface{}); ok {
-				log.Printf("Click failed. Element info: %+v", info)
-			}
-
 			return fmt.Errorf("click failed: %s", errorMsg)
 		}
 
-		// Log success with element info
-		if info, ok := resultMap["info"].(map[string]interface{}); ok {
-			log.Printf("Click succeeded. Element info: %+v", info)
-		}
 	}
 
 	return nil
@@ -755,14 +746,12 @@ func (c *WebDriverClient) TakeScreenshot(ctx context.Context) ([]byte, error) {
 
 	viewportResult, err := c.ExecuteScript(ctx, viewportScript, []interface{}{})
 	if err != nil {
-		log.Printf("Warning: failed to get viewport dimensions: %v", err)
 		// Fall back to full screenshot
 		return c.takeFullScreenshot(ctx)
 	}
 
 	viewport, ok := viewportResult.(map[string]interface{})
 	if !ok {
-		log.Printf("Warning: unexpected viewport result type")
 		return c.takeFullScreenshot(ctx)
 	}
 
@@ -780,12 +769,8 @@ func (c *WebDriverClient) TakeScreenshot(ctx context.Context) ([]byte, error) {
 		dpr = d
 	}
 
-	log.Printf("Viewport: %dx%d, DPR: %.1f, Target size: %dx%d",
-		width, height, dpr, int(float64(width)*dpr), int(float64(height)*dpr))
-
 	// If we couldn't get dimensions, fall back to full screenshot
 	if width == 0 || height == 0 {
-		log.Printf("Warning: invalid viewport dimensions, using full screenshot")
 		return c.takeFullScreenshot(ctx)
 	}
 
@@ -801,11 +786,9 @@ func (c *WebDriverClient) TakeScreenshot(ctx context.Context) ([]byte, error) {
 
 	croppedScreenshot, err := c.cropImage(fullScreenshot, targetWidth, targetHeight)
 	if err != nil {
-		log.Printf("Warning: failed to crop screenshot: %v, returning full screenshot", err)
 		return fullScreenshot, nil
 	}
 
-	log.Printf("Successfully cropped screenshot to %dx%d", targetWidth, targetHeight)
 	return croppedScreenshot, nil
 }
 
@@ -856,11 +839,8 @@ func (c *WebDriverClient) cropImage(imageData []byte, width, height int) ([]byte
 	imgWidth := bounds.Dx()
 	imgHeight := bounds.Dy()
 
-	log.Printf("Original image: %dx%d, Requested crop: %dx%d", imgWidth, imgHeight, width, height)
-
 	// If requested size is larger or equal to actual size, return original
 	if width >= imgWidth && height >= imgHeight {
-		log.Printf("Requested size >= actual size, returning original")
 		return imageData, nil
 	}
 
@@ -873,8 +853,6 @@ func (c *WebDriverClient) cropImage(imageData []byte, width, height int) ([]byte
 	if croppedHeight > imgHeight {
 		croppedHeight = imgHeight
 	}
-
-	log.Printf("Cropping to: %dx%d", croppedWidth, croppedHeight)
 
 	// Create cropped image
 	croppedImg := cropImageRect(img, 0, 0, croppedWidth, croppedHeight)
